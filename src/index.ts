@@ -1,3 +1,13 @@
+
+      /*#######.
+     ########",#:
+   #########',##".
+  ##'##'## .##',##.
+   ## ## ## # ##",#.
+    ## ## ## ## ##'
+     ## ## ## :##
+      ## ## ##*/
+
 import { Action, Middleware, MiddlewareAPI, Dispatch } from 'redux'
 import { ipcRenderer, ipcMain, BrowserWindow } from 'electron'
 
