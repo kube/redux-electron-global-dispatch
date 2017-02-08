@@ -1,3 +1,6 @@
+<img alt="Redux Electron"
+    src="https://rawgithub.com/kube/redux-electron-global-dispatch/master/icons.svg">
+
 Redux Electron Global Dispatch
 ==============================
 
