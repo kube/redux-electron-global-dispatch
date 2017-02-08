@@ -9,7 +9,7 @@
       ## ## ##*/
 
 import { Action, Middleware, MiddlewareAPI, Dispatch } from 'redux'
-import { ipcRenderer, ipcMain, BrowserWindow } from 'electron'
+import { remote, ipcRenderer, ipcMain, BrowserWindow } from 'electron'
 
 const GLOBAL_ACTION_MESSAGE = '@@GLOBAL_REDUX_ACTION'
 
@@ -36,46 +36,46 @@ const extractAction = (action: GlobalAction): Action => {
 }
 
 /**
- * Called from Main Process to send Action to all Renderer Processes
+ * Send Action to all Electron Processes (Main and Renderer)
  */
-const sendToAllWindows = (action: GlobalAction) =>
-  BrowserWindow.getAllWindows().forEach(window =>
-    // Send action through IPC to window, where middleware will dispatch to store
-    window.webContents.send(GLOBAL_ACTION_MESSAGE, extractAction(action))
+const globalEmit = (globalAction: GlobalAction) => {
+  const action = extractAction(globalAction)
+
+  const windows = isRenderer
+    ? remote.BrowserWindow.getAllWindows()
+    : BrowserWindow.getAllWindows()
+
+  // Send to all Renderer processes
+  windows.forEach(window =>
+    window.webContents.send(GLOBAL_ACTION_MESSAGE, action)
   )
 
-/**
- * Main Process Middleware dispatching Global Actions to all Windows
- */
-const mainMiddleware: Middleware = ({ dispatch }: MiddlewareAPI<any>) => {
-
-  // Listen for Global Actions dispatched to the Process
-  ipcMain.on(GLOBAL_ACTION_MESSAGE, (_, action: GlobalAction) =>
-    dispatch(action)
-  )
-
-  return (next: Dispatch<any>) => (action: GlobalAction) => {
-    if (isGlobalAction(action))
-      sendToAllWindows(action)
-
-    return next(action)
-  }
+  // Send to Main process
+  if (isRenderer)
+    ipcRenderer.send(GLOBAL_ACTION_MESSAGE, action)
+  else
+    ipcMain.emit(GLOBAL_ACTION_MESSAGE, null, action)
 }
 
 /**
  * Renderer Process Middleware dispatching Global Actions to Main Process
  */
-const rendererMiddleware: Middleware = ({ dispatch }: MiddlewareAPI<any>) => {
+const middleware: Middleware = ({ dispatch }: MiddlewareAPI<any>) => {
 
   // Listen for Global Actions dispatched to the Process
-  ipcRenderer.on(GLOBAL_ACTION_MESSAGE, (_, action: Action) =>
-    dispatch(action)
-  )
+  if (isRenderer)
+    ipcRenderer.on(GLOBAL_ACTION_MESSAGE, (_, action: Action) =>
+      dispatch(action)
+    )
+  else
+    ipcMain.on(GLOBAL_ACTION_MESSAGE, (_, action: GlobalAction) =>
+      dispatch(action)
+    )
 
   return (next: Dispatch<any>) => (action: Action) =>
     isGlobalAction(action)
-      ? ipcRenderer.send(GLOBAL_ACTION_MESSAGE, action)
+      ? globalEmit(action)
       : next(action)
 }
 
-export default isRenderer ? rendererMiddleware : mainMiddleware
+export default middleware
