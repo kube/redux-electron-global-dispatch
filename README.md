@@ -1,22 +1,9 @@
-<img alt="Redux Electron"
-    src="https://rawgithub.com/kube/redux-electron-global-dispatch/master/icons.svg">
+![Redux Electron Middleware](https://rawgithub.com/kube/redux-electron-global-dispatch/master/icons.svg)
 
 Redux Electron Global Dispatch
 ==============================
 
-Redux Middleware for Global Actions dispatch between Electron processes
-
-
-Why this package?
------------------
-
-**TL;DR** Performance.
-
-Keeping all Stores from your Electron app in sync is not complicated, but dispatching an Action through IPC has a cost: The action is serialized, sent as a text message, and then unserialized, before being dispatched to the Store.
-
-In the case of an application where a lot of actions get dispatched, this can lead to performance issues, and unnecessary resource usage.
-
-This middleware allows you to easily filter which actions will be dispatched globally, permitting to reduce IPC usage.
+Redux Middleware for dispatching Actions between Electron processes
 
 
 Install
@@ -25,6 +12,17 @@ Install
 ```sh
 npm install redux-electron-global-dispatch
 ```
+
+How it works
+------------
+
+This middleware intercepts all actions, and in case the intercepted action
+is global, it will forward it as an IPC message to all other processes.
+
+It also listens for global action events via IPC, so each Store implementing
+the middleware will effectively dispatch received global actions.
+
+Stores that do not use the middleware won't be touched.
 
 
 Global Actions
@@ -39,13 +37,14 @@ const globalAction = {
 }
 ```
 
-A global action will be intercepted by the middleware and dispatched to all Electron processes which use the middleware (Main and Renderer).
+A global action will be intercepted by the middleware and dispatched to all
+Electron processes which use the middleware.
 
 
 Setup
 -----
 
-Simply import the middleware and apply it to your Store.
+Simply import the middleware and apply it to your Store:
 
 ```ts
 import globalDispatchMiddleware from 'redux-electron-global-dispatch'
@@ -55,3 +54,17 @@ const store = createStore(reducer, enhancer)
 ```
 
 You're all set! All global actions will now automatically be dispatched to all Redux Stores using the middleware.
+
+
+Why this middleware?
+--------------------
+
+Dispatching an Action through **IPC has a cost**: the action is serialized, sent
+as a text message, and then unserialized, before being effectively dispatched to the Store.
+
+In the case of an application where a lot of actions get dispatched, on multiple
+windows, dispatching all actions globally adds a lot of unnecessary resource usage,
+and can lead to performance issues.
+
+This middleware allows you to **easily filter** which actions will be dispatched globally,
+preserving application **performance**.
