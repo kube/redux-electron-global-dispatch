@@ -58,7 +58,7 @@ const globalEmit = (globalAction: GlobalAction) => {
 }
 
 /**
- * Renderer Process Middleware dispatching Global Actions to Main Process
+ * Middleware intercepting Global Actions to dispatch them to all processes
  */
 const middleware: Middleware = ({ dispatch }: MiddlewareAPI<any>) => {
 
