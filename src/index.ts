@@ -38,37 +38,35 @@ const sendToAllWindows = (action: GlobalAction) =>
 /**
  * Main Process Middleware dispatching Global Actions to all Windows
  */
-const mainMiddleware =
-  ({ dispatch }: MiddlewareAPI<any>) => {
+const mainMiddleware: Middleware = ({ dispatch }: MiddlewareAPI<any>) => {
 
-    // Listen for Global Actions dispatched to the Process
-    ipcMain.on(GLOBAL_ACTION_MESSAGE, (_, action: GlobalAction) =>
-      dispatch(action)
-    )
+  // Listen for Global Actions dispatched to the Process
+  ipcMain.on(GLOBAL_ACTION_MESSAGE, (_, action: GlobalAction) =>
+    dispatch(action)
+  )
 
-    return (next: Dispatch<any>) => (action: GlobalAction) => {
-      if (isGlobalAction(action))
-        sendToAllWindows(action)
+  return (next: Dispatch<any>) => (action: GlobalAction) => {
+    if (isGlobalAction(action))
+      sendToAllWindows(action)
 
-      return next(action)
-    }
+    return next(action)
   }
+}
 
 /**
  * Renderer Process Middleware dispatching Global Actions to Main Process
  */
-const rendererMiddleware: Middleware =
-  ({ dispatch }: MiddlewareAPI<any>) => {
+const rendererMiddleware: Middleware = ({ dispatch }: MiddlewareAPI<any>) => {
 
-    // Listen for Global Actions dispatched to the Process
-    ipcRenderer.on(GLOBAL_ACTION_MESSAGE, (_, action: Action) =>
-      dispatch(action)
-    )
+  // Listen for Global Actions dispatched to the Process
+  ipcRenderer.on(GLOBAL_ACTION_MESSAGE, (_, action: Action) =>
+    dispatch(action)
+  )
 
-    return (next: Dispatch<any>) => (action: Action) =>
-      isGlobalAction(action)
-        ? ipcRenderer.send(GLOBAL_ACTION_MESSAGE, action)
-        : next(action)
-  }
+  return (next: Dispatch<any>) => (action: Action) =>
+    isGlobalAction(action)
+      ? ipcRenderer.send(GLOBAL_ACTION_MESSAGE, action)
+      : next(action)
+}
 
 export default isRenderer ? rendererMiddleware : mainMiddleware
