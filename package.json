@@ -1,0 +1,12 @@
+{
+  "name": "redux-electron-global-dispatch",
+  "version": "0.1.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": "https://github.com/kube/redux-electron-global-dispatch",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/electron": "^1.4.31",
+    "@types/redux": "^3.6.0"
+  }
+}
