@@ -16,7 +16,7 @@ Keeping all Stores from your Electron app in sync is not complicated, but dispat
 
 In the case of an application where a lot of actions get dispatched, this can lead to performance issues, and unnecessary resource usage.
 
-This middleware allows you to easily define which actions will be dispatched globally, permitting to reduce IPC usage.
+This middleware allows you to easily filter which actions will be dispatched globally, permitting to reduce IPC usage.
 
 
 Install
