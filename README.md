@@ -1,6 +1,7 @@
-<h1 align="center">redux-electron-global-dispatch</h1>
+Redux Electron Global Dispatch
+==============================
 
-<center>Redux Middleware for dispatching Actions between all Electron processes</center>
+Redux Middleware for Global Actions dispatch between Electron processes
 
 
 Why this package?
