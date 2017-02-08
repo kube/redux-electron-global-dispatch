@@ -14,7 +14,6 @@ import { ipcRenderer, ipcMain, BrowserWindow } from 'electron'
 const GLOBAL_ACTION_MESSAGE = '@@GLOBAL_REDUX_ACTION'
 
 type GlobalAction = Action & {
-  type: string
   global?: true
 }
 
