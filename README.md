@@ -56,6 +56,38 @@ const store = createStore(reducer, enhancer)
 You're all set! All global actions will now automatically be dispatched to all Redux Stores using the middleware.
 
 
+Custom Global Action Predicate
+------------------------------
+
+You can also define a custom global action predicate:
+
+When you use the default export, the predicate is:
+
+```ts
+action => action.global === true
+```
+
+If you want to automatically dispatch all Increment Actions, you can do:
+
+```ts
+import { createGlobalDispatchMiddleware } from 'redux-electron-global-dispatch'
+
+const enhancer = applyMiddleware(
+  createGlobalDispatchMiddleware(action => action.type === 'INCREMENT')
+)
+```
+
+Or if you want to dispatch globally all Actions without filtering:
+
+```ts
+import { createGlobalDispatchMiddleware } from 'redux-electron-global-dispatch'
+
+const enhancer = applyMiddleware(
+  createGlobalDispatchMiddleware(() => true)
+)
+```
+
+
 Why this middleware?
 --------------------
 
