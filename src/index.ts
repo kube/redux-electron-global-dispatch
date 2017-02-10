@@ -36,13 +36,14 @@ const extractAction = (action: GlobalAction): Action => {
 }
 
 /**
- * Send Action to all Electron Processes (Main and Renderer)
+ * Send Action to all others Electron Processes
  */
 const globalEmit = (globalAction: GlobalAction) => {
   const action = extractAction(globalAction)
 
   const windows = isRenderer
     ? remote.BrowserWindow.getAllWindows()
+      .filter(window => window !== remote.getCurrentWindow())
     : BrowserWindow.getAllWindows()
 
   // Send to all Renderer processes
@@ -53,8 +54,6 @@ const globalEmit = (globalAction: GlobalAction) => {
   // Send to Main process
   if (isRenderer)
     ipcRenderer.send(GLOBAL_ACTION_MESSAGE, action)
-  else
-    ipcMain.emit(GLOBAL_ACTION_MESSAGE, null, action)
 }
 
 /**
@@ -72,10 +71,12 @@ const middleware: Middleware = ({ dispatch }: MiddlewareAPI<any>) => {
       dispatch(action)
     )
 
-  return (next: Dispatch<any>) => (action: Action) =>
-    isGlobalAction(action)
-      ? globalEmit(action)
-      : next(action)
+  return (next: Dispatch<any>) => (action: Action) => {
+    if (isGlobalAction(action))
+      globalEmit(action)
+
+    next(action)
+  }
 }
 
 export default middleware
