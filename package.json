@@ -3,7 +3,11 @@
   "version": "0.2.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "repository": "https://github.com/kube/redux-electron-global-dispatch",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository":
+    "https://github.com/kube/redux-electron-global-dispatch",
   "license": "MIT",
   "devDependencies": {
     "@types/electron": "^1.6.10",
