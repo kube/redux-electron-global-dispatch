@@ -8,7 +8,7 @@
      ## ## ## :##
       ## ## ##*/
 
-import { Action, Middleware, MiddlewareAPI, Dispatch } from 'redux'
+import { Action, MiddlewareAPI, Dispatch } from 'redux'
 import { remote, ipcRenderer, ipcMain, BrowserWindow } from 'electron'
 
 const isRenderer = process.type === 'renderer'
@@ -31,8 +31,9 @@ const globalEmit = (localAction: Action) => {
   }
 
   const windows = isRenderer
-    ? remote.BrowserWindow.getAllWindows()
-      .filter(window => window !== remote.getCurrentWindow())
+    ? remote.BrowserWindow.getAllWindows().filter(
+        window => window !== remote.getCurrentWindow()
+      )
     : BrowserWindow.getAllWindows()
 
   // Send to all Renderer processes
@@ -41,33 +42,35 @@ const globalEmit = (localAction: Action) => {
   )
 
   // Send to Main process
-  if (isRenderer)
+  if (isRenderer) {
     ipcRenderer.send(GLOBAL_ACTION_MESSAGE, action)
+  }
 }
 
 /**
  * Middleware intercepting Global Actions to dispatch them to all processes
  */
-export const createGlobalDispatchMiddleware =
-  <A extends Action>(isGlobalAction: (action: A) => boolean): Middleware =>
-    ({ dispatch }: MiddlewareAPI<any>) => {
+export const createGlobalDispatchMiddleware = <A extends Action>(
+  isGlobalAction: (action: A) => boolean
+) => ({ dispatch }: MiddlewareAPI<any>) => {
+  const ipc = isRenderer ? ipcRenderer : ipcMain
 
-      // Listen for Global Actions dispatched to the Process
-      if (isRenderer)
-        ipcRenderer.on(GLOBAL_ACTION_MESSAGE, (_, action: A) =>
-          dispatch(action)
-        )
-      else
-        ipcMain.on(GLOBAL_ACTION_MESSAGE, (_, action: A) =>
-          dispatch(action)
-        )
+  // Listen for Global Actions dispatched to the Process
+  ipc.on(GLOBAL_ACTION_MESSAGE, (_: any, action: A) =>
+    dispatch(action)
+  )
 
-      return (next: Dispatch<any>) => (action: A) => {
-        if (!alreadyGloballyDispatched(action) && isGlobalAction(action))
-          globalEmit(action)
+  return (next: Dispatch<any>) => (action: A) => {
+    if (!alreadyGloballyDispatched(action) && isGlobalAction(action))
+      globalEmit(action)
 
-        next(action)
-      }
-    }
+    next(action)
+  }
+}
 
-export default createGlobalDispatchMiddleware<any>(action => action.global === true)
+/**
+ * Middleware with default global action predicate
+ */
+export default createGlobalDispatchMiddleware<any>(
+  action => action.global === true
+)
