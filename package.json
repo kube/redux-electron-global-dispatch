@@ -6,7 +6,8 @@
   "repository": "https://github.com/kube/redux-electron-global-dispatch",
   "license": "MIT",
   "devDependencies": {
-    "@types/electron": "^1.4.31",
-    "@types/redux": "^3.6.0"
+    "@types/electron": "^1.6.10",
+    "@types/redux": "^3.6.0",
+    "typescript": "^2.7.2"
   }
 }
