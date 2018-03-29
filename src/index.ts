@@ -22,6 +22,16 @@ const alreadyGloballyDispatched = (action: any) =>
   action[GLOBALLY_DISPATCHED] === true
 
 /**
+ * Dispatch Action to specific Browser Window
+ */
+export const dispatchToWindow = (
+  window: BrowserWindow,
+  action: Action
+) => {
+  window.webContents.send(GLOBAL_ACTION_MESSAGE, action)
+}
+
+/**
  * Send Action to all others Electron Processes
  */
 const globalEmit = (localAction: Action) => {
@@ -37,9 +47,7 @@ const globalEmit = (localAction: Action) => {
     : BrowserWindow.getAllWindows()
 
   // Send to all Renderer processes
-  windows.forEach(window =>
-    window.webContents.send(GLOBAL_ACTION_MESSAGE, action)
-  )
+  windows.forEach(window => dispatchToWindow(window, action))
 
   // Send to Main process
   if (isRenderer) {

@@ -1,20 +1,16 @@
 ![Redux Electron Middleware](https://rawgithub.com/kube/redux-electron-global-dispatch/master/icons.svg)
 
-Redux Electron Global Dispatch
-==============================
+# Redux Electron Global Dispatch
 
 Redux Middleware for dispatching Actions between Electron processes
 
-
-Install
--------
+## Install
 
 ```sh
 npm install redux-electron-global-dispatch
 ```
 
-How it works
-------------
+## How it works
 
 This middleware intercepts all actions, and in case the intercepted action
 is global, it will forward it as an IPC message to all other processes.
@@ -24,9 +20,17 @@ the middleware will effectively dispatch received global actions.
 
 Stores that do not use the middleware won't be touched.
 
+## Dispatch to BrowserWindow
 
-Global Actions
---------------
+An Action can be easily dispatched to a BrowserWindow using `dispatchToWindow`:
+
+```ts
+import { dispatchToWindow } from 'redux-electron-global-dispatch'
+
+dispatchToWindow(browserWindow, someAction)
+```
+
+## Global Actions
 
 A global action is just an action which has a `global` attribute set to `true`:
 
@@ -40,9 +44,7 @@ const globalAction = {
 A global action will be intercepted by the middleware and dispatched to all
 Electron processes which use the middleware.
 
-
-Setup
------
+## Setup
 
 Simply import the middleware and apply it to your Store:
 
@@ -55,9 +57,7 @@ const store = createStore(reducer, enhancer)
 
 You're all set! All global actions will now automatically be dispatched to all Redux Stores using the middleware.
 
-
-Custom Global Action Predicate
-------------------------------
+## Custom Global Action Predicate
 
 You can also define a custom global action predicate:
 
@@ -73,7 +73,9 @@ If you want to automatically dispatch all Increment Actions, you can do:
 import { createGlobalDispatchMiddleware } from 'redux-electron-global-dispatch'
 
 const enhancer = applyMiddleware(
-  createGlobalDispatchMiddleware(action => action.type === 'INCREMENT')
+  createGlobalDispatchMiddleware(
+    action => action.type === 'INCREMENT'
+  )
 )
 ```
 
@@ -87,9 +89,7 @@ const enhancer = applyMiddleware(
 )
 ```
 
-
-Why this middleware?
---------------------
+## Why this middleware?
 
 Dispatching an Action through **IPC has a cost**: the action is serialized, sent
 as a text message, and then unserialized, before being effectively dispatched to the Store.
